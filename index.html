@@ -369,29 +369,39 @@ const nombreArchivo =
     `${nombreLimpio}_` +
     `${fecha}_${hora}`;
 
-        formData.append(
-            "file",
-            file
-        );
+const formData = new FormData();
 
-        formData.append(
-            "public_id",
-            nombreArchivo
-        );
+formData.append(
+    "file",
+    file
+);
 
-        formData.append(
-            "upload_preset",
-            uploadPreset
-        );
+formData.append(
+    "public_id",
+    nombreArchivo
+);
 
-        await fetch(
-            `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-            {
-                method:"POST",
-                body:formData
-            }
-        );
+formData.append(
+    "upload_preset",
+    uploadPreset
+);
+console.log("Subiendo:", nombreArchivo);
+
+const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    {
+        method:"POST",
+        body:formData
     }
+);
+
+console.log("Status:", response.status);
+
+const data = await response.json();
+
+console.log("Respuesta Cloudinary:", data);
+
+console.log("Subida OK");
 
     status.innerHTML = `
 <br>
@@ -408,7 +418,7 @@ Tus fotos ya fueron recibidas.
     "No hay fotos seleccionadas";
 
 }
-
+}
 </script>
 
 </body>
