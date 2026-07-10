@@ -1,4 +1,3 @@
-//Probando comentarios
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -158,13 +157,7 @@ button:hover {
 
     margin-top:20px;
 
-    font-size:16px;
-
-    line-height:1.5;
-
-    font-weight:500;
-
-    color:#6b4f3a;
+    font-weight:bold;
 }
 
 .preview{
@@ -374,8 +367,7 @@ const nombreArchivo =
 
     `MESA-${mesaLimpia}_` +
     `${nombreLimpio}_` +
-    `${fecha}_${hora}_` +
-    `${Math.floor(Math.random()*100000)}`;
+    `${fecha}_${hora}`;
 
 const formData = new FormData();
 
@@ -388,7 +380,6 @@ formData.append(
     "public_id",
     nombreArchivo
 );
-``
 
 formData.append(
     "upload_preset",
@@ -412,12 +403,11 @@ console.log("Respuesta Cloudinary:", data);
 
 console.log("Subida OK");
 
-status.innerHTML = `
-<div class="mensaje-exito">
-    ❤️ Gracias por compartir este momento con nosotros.
-    <br><br>
-    Tus fotos ya fueron recibidas.
-</div>
+    status.innerHTML = `
+<br>
+❤️ Gracias por compartir este momento con nosotros.
+<br><br>
+Tus fotos ya fueron recibidas.
 `;
 
     document.getElementById("nombre").value = "";
