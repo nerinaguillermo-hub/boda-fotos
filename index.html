@@ -171,18 +171,17 @@ button:hover {
     margin-top:15px;
 }
 
-.preview img{
+.preview{
 
-    width:90px;
-    height:90px;
+    display:flex;
 
-    object-fit:cover;
+    flex-wrap:wrap;
 
-    border-radius:12px;
+    justify-content:center;
 
-    margin:5px;
+    gap:6px;
 
-    border:2px solid #eee;
+    margin-top:10px;
 }
 
 .frase{
@@ -291,13 +290,13 @@ document
     const cantidad =
         document.getElementById("files").files.length;
 
+    console.log("Cantidad:", cantidad);
+
     document.getElementById("contador")
         .innerText =
         `${cantidad} foto(s) seleccionada(s)`;
 
 });
-
-<div id="preview"></div>
 
 async function subirFotos(){
 
