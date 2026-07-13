@@ -1,1 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Galería - Neri & Guille</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#f6f3ef;
+    font-family:'Segoe UI',sans-serif;
+}
+
+.header{
+
+    text-align:center;
+
+    padding:40px 20px 20px;
+}
+
+.anillos{
+
+    font-size:48px;
+}
+
+h1{
+
+    color:#8d6b4f;
+    margin:10px 0;
+}
+
+.subtitulo{
+
+    color:#666;
+    font-size:18px;
+}
+
+.contenedor{
+
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.filtros{
+
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:30px;
+}
+
+.filtro{
+
+    border:none;
+    padding:10px 18px;
+    border-radius:20px;
+    cursor:pointer;
+
+    background:white;
+
+    border:1px solid #d9c4ab;
+
+    color:#6b4f3a;
+}
+
+.filtro:hover{
+
+    background:#f3ece4;
+}
+
+.galeria{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(
+        auto-fill,
+        minmax(250px,1fr)
+    );
+
+    gap:15px;
+}
+
+.foto{
+
+    overflow:hidden;
+
+    border-radius:16px;
+
+    background:white;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.08);
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.foto:hover{
+
+    transform:translateY(-3px);
+}
+
+.foto img{
+
+    width:100%;
+    height:250px;
+    object-fit:cover;
+    display:block;
+}
+
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,.9);
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:1000;
+}
+
+.modal img{
+
+    max-width:90%;
+    max-height:90%;
+    border-radius:12px;
+}
+
+.cerrar{
+
+    position:absolute;
+
+    top:20px;
+    right:30px;
+
+    color:white;
+
+    font-size:35px;
+
+    cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="anillos">💍</div>
+
+    <h1>Neri & Guille</h1>
+
+    <div class="subtitulo">
+        Galería de nuestra boda 📸
+    </div>
+
+</div>
+
+<div class="contenedor">
+
+    <div class="filtros">
+
+        <button class="filtro">
+            Todas
+        </button>
+
+        <button class="filtro">
+            Mesa 1
+        </button>
+
+        <button class="filtro">
+            Mesa 2
+        </button>
+
+        <button class="filtro">
+            Mesa 3
+        </button>
+
+    </div>
+
+    <div class="galeria">
+
+    <div style="
+        grid-column:1/-1;
+        text-align:center;
+        color:#8d6b4f;
+        font-size:20px;
+        padding:50px;
+    ">
+
+        📸 La galería estará disponible después de la boda.
+
+    </div>
+
+</div>
+
+</div>
+
+<div class="modal" id="modal">
+
+    <span
+        class="cerrar"
+        onclick="cerrarModal()">
+
+        ×
+
+    </span>
+
+    <img id="modalImg">
+
+</div>
+
+<script>
+
+const modal =
+document.getElementById("modal");
+
+const modalImg =
+document.getElementById("modalImg");
+
+const galeria =
+document.querySelector(".galeria");
+
+const filtros =
+document.querySelector(".filtros");
+
+let todasLasFotos = [];
+
+async function cargarFotos(){
+
+    const response =
+        await fetch("fotos.json");
+
+    const fotos =
+        await response.json();
+
+    todasLasFotos = fotos;
+
+    generarFiltros(fotos);
+
+    mostrarFotos(fotos);
+
+}
+
+function generarFiltros(fotos){
+
+    const mesas =
+        [...new Set(
+
+            fotos.map(f=>{
+
+                const match =
+                    f.match(/MESA-(\d+)/);
+
+                return match
+                    ? match[1]
+                    : null;
+
+            })
+
+        )]
+        .filter(Boolean)
+        .sort();
+
+    filtros.innerHTML = "";
+
+    const btnTodas =
+        document.createElement("button");
+
+    btnTodas.className =
+        "filtro";
+
+    btnTodas.innerText =
+        "Todas";
+
+    btnTodas.onclick = () =>
+        mostrarFotos(todasLasFotos);
+
+    filtros.appendChild(btnTodas);
+
+    mesas.forEach(mesa=>{
+
+        const btn =
+            document.createElement("button");
+
+        btn.className =
+            "filtro";
+
+        btn.innerText =
+            `Mesa ${parseInt(mesa)}`;
+
+        btn.onclick = ()=>{
+
+            mostrarFotos(
+
+                todasLasFotos.filter(
+                    f=>f.includes(
+                        `MESA-${mesa}`
+                    )
+                )
+
+            );
+
+        };
+
+        filtros.appendChild(btn);
+
+    });
+
+}
+
+function mostrarFotos(lista){
+
+    galeria.innerHTML = "";
+
+    lista.reverse().forEach(foto=>{
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "foto";
+
+        div.innerHTML =
+
+        `fotos/${foto}`;
+
+        div.querySelector("img")
+        .onclick = ()=>{
+
+            modal.style.display =
+                "flex";
+
+            modalImg.src =
+                `fotos/${foto}`;
+
+        };
+
+        galeria.appendChild(div);
+
+    });
+
+}
+
+function cerrarModal(){
+
+    modal.style.display =
+        "none";
+}
+
+modal.onclick = ()=>{
+
+    modal.style.display =
+        "none";
+};
+
+cargarFotos();
+
+</script>
+
+</body>
+</html>
