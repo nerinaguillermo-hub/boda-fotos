@@ -178,17 +178,41 @@ h1{
 
 <div class="contenedor">
 
-    <div class="filtros"></div>
+    <div class="filtros">
 
-<div id="infoGaleria"
-     style="
-     text-align:center;
-     margin-bottom:20px;
-     color:#8d6b4f;
-     font-weight:600;">
+        <button class="filtro">
+            Todas
+        </button>
+
+        <button class="filtro">
+            Mesa 1
+        </button>
+
+        <button class="filtro">
+            Mesa 2
+        </button>
+
+        <button class="filtro">
+            Mesa 3
+        </button>
+
+    </div>
+
+    <div class="galeria">
+
+    <div style="
+        grid-column:1/-1;
+        text-align:center;
+        color:#8d6b4f;
+        font-size:20px;
+        padding:50px;
+    ">
+
+        📸 La galería estará disponible después de la boda.
+
+    </div>
+
 </div>
-
-    <div class="galeria"></div>
 
 </div>
 
@@ -208,20 +232,17 @@ h1{
 
 <script>
 
-const galeria =
-document.querySelector(".galeria");
-
-const filtros =
-document.querySelector(".filtros");
-
-const infoGaleria =
-document.getElementById("infoGaleria");
-
 const modal =
 document.getElementById("modal");
 
 const modalImg =
 document.getElementById("modalImg");
+
+const galeria =
+document.querySelector(".galeria");
+
+const filtros =
+document.querySelector(".filtros");
 
 let todasLasFotos = [];
 
@@ -230,111 +251,115 @@ async function cargarFotos(){
     const response =
         await fetch("fotos.json");
 
-    todasLasFotos =
+    const fotos =
         await response.json();
 
-    generarFiltros();
+    todasLasFotos = fotos;
 
-    mostrarFotos(todasLasFotos);
+    generarFiltros(fotos);
+
+    mostrarFotos(fotos);
+
 }
 
-function generarFiltros(){
+function generarFiltros(fotos){
+
+    const mesas =
+        [...new Set(
+
+            fotos.map(f=>{
+
+                const match =
+                    f.match(/MESA-(\d+)/);
+
+                return match
+                    ? match[1]
+                    : null;
+
+            })
+
+        )]
+        .filter(Boolean)
+        .sort();
 
     filtros.innerHTML = "";
 
-    crearBoton(
-        "Todas",
-        todasLasFotos
-    );
+    const btnTodas =
+        document.createElement("button");
 
-    const mesas =
-    [...new Set(
+    btnTodas.className =
+        "filtro";
 
-        todasLasFotos.map(f => {
+    btnTodas.innerText =
+        "Todas";
 
-            const match =
-                f.match(/MESA-(\d+)/);
+    btnTodas.onclick = () =>
+        mostrarFotos(todasLasFotos);
 
-            return match
-                ? match[1]
-                : null;
+    filtros.appendChild(btnTodas);
 
-        })
+    mesas.forEach(mesa=>{
 
-    )]
-    .filter(Boolean)
-    .sort();
+        const btn =
+            document.createElement("button");
 
-    mesas.forEach(mesa => {
+        btn.className =
+            "filtro";
 
-        const fotosMesa =
+        btn.innerText =
+            `Mesa ${parseInt(mesa)}`;
 
-            todasLasFotos.filter(
-                f =>
-                f.includes(
-                    `MESA-${mesa}`
+        btn.onclick = ()=>{
+
+            mostrarFotos(
+
+                todasLasFotos.filter(
+                    f=>f.includes(
+                        `MESA-${mesa}`
+                    )
                 )
+
             );
 
-        crearBoton(
-            `Mesa ${parseInt(mesa)}`,
-            fotosMesa
-        );
+        };
+
+        filtros.appendChild(btn);
 
     });
 
 }
 
-function crearBoton(texto,fotos){
-
-    const btn =
-        document.createElement("button");
-
-    btn.className =
-        "filtro";
-
-    btn.innerText =
-        texto;
-
-    btn.onclick =
-        ()=>mostrarFotos(fotos);
-
-    filtros.appendChild(btn);
-}
-
-function mostrarFotos(fotos){
+function mostrarFotos(lista){
 
     galeria.innerHTML = "";
 
-    infoGaleria.innerText =
-        `📸 ${fotos.length} fotos`;
+    lista.reverse().forEach(foto=>{
 
-    [...fotos]
-    .reverse()
-    .forEach(foto => {
+        const div =
+            document.createElement("div");
 
-        const card =
-    document.createElement("div");
+        div.className =
+            "foto";
 
-card.className =
-    "foto";
+        div.innerHTML =
 
-card.innerHTML =
-`<img src="fotos/${foto}`;
-
-card.querySelector("img")
-.onclick = ()=>{
-
-    modal.style.display =
-        "flex";
-
-    modalImg.src =
         `fotos/${foto}`;
-};
 
-galeria.appendChild(card);
+        div.querySelector("img")
+        .onclick = ()=>{
+
+            modal.style.display =
+                "flex";
+
+            modalImg.src =
+                `fotos/${foto}`;
+
+        };
+
+        galeria.appendChild(div);
 
     });
+
 }
 
 function cerrarModal(){
