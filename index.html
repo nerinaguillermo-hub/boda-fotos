@@ -229,6 +229,7 @@ button:hover {
 
     <div class="anillos">
 💍
+</div>
 
 <h1>Neri & Guille</h1>
 
@@ -399,12 +400,25 @@ async function subirFotos(){
             const mesaLimpia =
                 mesa || "00";
 
+            const nombreArchivo =
+
+                `MESA-${mesaLimpia}_` +
+                `${nombreLimpio}_` +
+                `${fecha}_${hora}_` +
+                `${Date.now()}_` +
+                `${Math.floor(Math.random()*100000)}`;
+
             const formData =
                 new FormData();
 
             formData.append(
                 "file",
                 file
+            );
+
+            formData.append(
+                "public_id",
+                nombreArchivo
             );
 
             formData.append(
