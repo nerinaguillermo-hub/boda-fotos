@@ -117,19 +117,6 @@ h1{
     display:block;
 }
 
-.info-foto{
-
-    padding:10px;
-
-    text-align:center;
-
-    font-size:14px;
-
-    color:#6b4f3a;
-
-    background:white;
-}
-
 .modal{
 
     display:none;
@@ -171,70 +158,6 @@ h1{
     cursor:pointer;
 }
 
-.cerrar{
-
-    position:absolute;
-
-    top:20px;
-    right:30px;
-
-    color:white;
-
-    font-size:40px;
-
-    cursor:pointer;
-
-    z-index:1100;
-}
-
-.flecha{
-
-    position:fixed;
-
-    top:50%;
-
-    transform:translateY(-50%);
-
-    color:white;
-
-    font-size:60px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-
-    z-index:9999;
-
-    user-select:none;
-
-    padding:20px;
-}
-
-.flecha-izquierda{
-
-    left:30px;
-}
-
-.flecha-derecha{
-
-    right:30px;
-}
-
-.flecha:hover{
-    color:#d9c4ab;
-}
-
-.modal img{
-
-    max-width:90%;
-    max-height:90%;
-
-    border-radius:12px;
-
-    box-shadow:
-        0 0 30px rgba(255,255,255,.15);
-}
-
 </style>
 
 </head>
@@ -274,22 +197,12 @@ h1{
     <span
         class="cerrar"
         onclick="cerrarModal()">
-        ✕
-    </span>
 
-    <span
-        class="flecha flecha-izquierda"
-        onclick="fotoAnterior(event)">
-        ❮
+        ×
+
     </span>
 
     <img id="modalImg">
-
-    <span
-        class="flecha flecha-derecha"
-        onclick="fotoSiguiente(event)">
-        ❯
-    </span>
 
 </div>
 
@@ -311,8 +224,6 @@ const modalImg =
 document.getElementById("modalImg");
 
 let todasLasFotos = [];
-let fotosActuales = [];
-let indiceActual = 0;
 
 async function cargarFotos(){
 
@@ -393,8 +304,6 @@ function crearBoton(texto,fotos){
 
 function mostrarFotos(fotos){
 
-    fotosActuales = [...fotos];
-
     galeria.innerHTML = "";
 
     infoGaleria.innerText =
@@ -402,7 +311,7 @@ function mostrarFotos(fotos){
 
     [...fotos]
     .reverse()
-    .forEach((foto,index) => {
+    .forEach(foto => {
 
         const card =
             document.createElement("div");
@@ -418,8 +327,6 @@ function mostrarFotos(fotos){
 
         img.onclick = ()=>{
 
-            indiceActual = index;
-
             modal.style.display =
                 "flex";
 
@@ -429,28 +336,7 @@ function mostrarFotos(fotos){
 
         card.appendChild(img);
 
-const info =
-    document.createElement("div");
-
-info.className =
-    "info-foto";
-
-const partes =
-    foto.split("_");
-
-const mesa =
-    partes[0]
-        .replace("MESA-","");
-
-const nombre =
-    partes[1] || "";
-
-info.innerText =
-    `Mesa ${parseInt(mesa)} · ${nombre}`;
-
-card.appendChild(info);
-
-galeria.appendChild(card);
+        galeria.appendChild(card);
 
     });
 }
@@ -461,42 +347,10 @@ function cerrarModal(){
         "none";
 }
 
-function fotoAnterior(event){
+modal.onclick = ()=>{
 
-    event.stopPropagation();
-
-    if(indiceActual > 0){
-
-        indiceActual--;
-
-        modalImg.src =
-            `fotos/${fotosActuales[indiceActual]}`;
-    }
-}
-
-function fotoSiguiente(event){
-
-    event.stopPropagation();
-
-    if(
-        indiceActual <
-        fotosActuales.length - 1
-    ){
-
-        indiceActual++;
-
-        modalImg.src =
-            `fotos/${fotosActuales[indiceActual]}`;
-    }
-}
-
-modal.onclick = (event)=>{
-
-    if(event.target === modal){
-
-        modal.style.display =
-            "none";
-    }
+    modal.style.display =
+        "none";
 };
 
 cargarFotos();
