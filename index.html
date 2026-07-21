@@ -192,6 +192,11 @@
             box-shadow:0 0 0 4px rgba(176,141,79,.15);
         }
 
+        select.campo-invalido{
+            border-color:var(--wine);
+            box-shadow:0 0 0 4px rgba(110,42,58,.12);
+        }
+
         .select-wrap::after{
             content:"";
             position:absolute;
@@ -352,6 +357,21 @@
             margin-bottom:6px;
         }
 
+        .nota-demora{
+            margin-top:10px;
+            font-size:12px;
+            font-style:italic;
+            color:var(--ink-soft);
+            line-height:1.5;
+        }
+
+        .aviso-demora{
+            margin-top:10px;
+            font-size:11.5px;
+            color:var(--ink-soft);
+            line-height:1.5;
+        }
+
         .enlace-galeria{
             display:inline-block;
             margin-top:22px;
@@ -444,9 +464,13 @@
         Compartir fotos
     </button>
 
+    <p class="aviso-demora">
+        La galería tarda un rato en actualizarse — no hace falta subir la misma foto varias veces.
+    </p>
+
     <div id="status"></div>
 
-    <a href="/boda-fotos/galeria" class="enlace-galeria">
+    <a href="galeria/" class="enlace-galeria">
         Ver la galería de fotos ❯
     </a>
 
@@ -467,6 +491,23 @@ const btnSubir = document.getElementById("btnSubir");
 const barraProgreso = document.getElementById("barraProgreso");
 const relleno = document.getElementById("relleno");
 const status = document.getElementById("status");
+
+const params = new URLSearchParams(window.location.search);
+const mesaParam = params.get("mesa");
+
+if(mesaParam){
+
+    const selectMesa = document.getElementById("mesa");
+    const valor = mesaParam.padStart(2, "0");
+
+    if([...selectMesa.options].some(o => o.value === valor)){
+        selectMesa.value = valor;
+    }
+}
+
+document.getElementById("mesa").addEventListener("change", (e) => {
+    e.target.classList.remove("campo-invalido");
+});
 
 inputFiles.addEventListener("change", () => {
     agregarArchivos(inputFiles.files);
@@ -568,12 +609,88 @@ function actualizarProgreso(actual, total){
     relleno.style.width = `${Math.round((actual / total) * 100)}%`;
 }
 
+function armarNombreArchivo(nombre, mesa){
+
+    const ahora = new Date();
+
+    const fecha =
+        ahora.getFullYear() +
+        String(ahora.getMonth()+1).padStart(2,"0") +
+        String(ahora.getDate()).padStart(2,"0");
+
+    const hora =
+        String(ahora.getHours()).padStart(2,"0") +
+        String(ahora.getMinutes()).padStart(2,"0") +
+        String(ahora.getSeconds()).padStart(2,"0");
+
+    const nombreLimpio =
+        (nombre || "ANONIMO")
+            .trim()
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "_");
+
+    const mesaLimpia = mesa || "00";
+
+    return (
+        `MESA-${mesaLimpia}_` +
+        `${nombreLimpio}_` +
+        `${fecha}_${hora}_` +
+        `${Date.now()}_` +
+        `${Math.floor(Math.random()*100000)}`
+    );
+}
+
+function esperar(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function subirUnaFoto(originalFile, nombre, mesa){
+
+    const file = await optimizarImagen(originalFile);
+
+    const extension = file.name.split(".").pop().toLowerCase();
+
+    if(!["jpg","jpeg","png","webp"].includes(extension)){
+        return "omitida";
+    }
+
+    const nombreArchivo = armarNombreArchivo(nombre, mesa);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("public_id", nombreArchivo);
+    formData.append("upload_preset", uploadPreset);
+
+    const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: "POST", body: formData }
+    );
+
+    if(!response.ok){
+        const error = await response.json().catch(() => null);
+        console.error(error);
+        throw new Error("Error al subir la foto");
+    }
+
+    return "subida";
+}
+
 async function subirFotos(){
 
     const nombre = document.getElementById("nombre").value;
-    const mesa = document.getElementById("mesa").value;
+    const selectMesa = document.getElementById("mesa");
+    const mesa = selectMesa.value;
 
     status.classList.remove("error");
+    selectMesa.classList.remove("campo-invalido");
+
+    if(mesa === ""){
+        status.classList.add("error");
+        status.innerHTML = "⚠️ Elegí tu mesa antes de compartir las fotos.";
+        selectMesa.classList.add("campo-invalido");
+        selectMesa.focus();
+        return;
+    }
 
     if(archivosSeleccionados.length === 0){
         status.classList.add("error");
@@ -586,77 +703,53 @@ async function subirFotos(){
     relleno.style.width = "0%";
 
     const total = archivosSeleccionados.length;
-    let subidas = 0;
+    let procesadas = 0;
+    let exitosas = 0;
+    let fallidas = 0;
 
     status.innerHTML = `Subiendo foto 1 de ${total}...`;
 
-    try{
+    for(const originalFile of archivosSeleccionados){
 
-        for(const originalFile of archivosSeleccionados){
+        procesadas++;
+        status.innerHTML = `Subiendo foto ${procesadas} de ${total}...`;
 
-            subidas++;
-            status.innerHTML = `Subiendo foto ${subidas} de ${total}...`;
+        let resultado = null;
 
-            const file = await optimizarImagen(originalFile);
+        // Hasta 2 intentos por foto, por si fue un problema de conexión pasajero
+        for(let intento = 1; intento <= 2 && resultado === null; intento++){
 
-            const extension = file.name.split(".").pop().toLowerCase();
-
-            if(!["jpg","jpeg","png","webp"].includes(extension)){
-                actualizarProgreso(subidas, total);
-                continue;
+            try{
+                resultado = await subirUnaFoto(originalFile, nombre, mesa);
             }
-
-            const ahora = new Date();
-
-            const fecha =
-                ahora.getFullYear() +
-                String(ahora.getMonth()+1).padStart(2,"0") +
-                String(ahora.getDate()).padStart(2,"0");
-
-            const hora =
-                String(ahora.getHours()).padStart(2,"0") +
-                String(ahora.getMinutes()).padStart(2,"0") +
-                String(ahora.getSeconds()).padStart(2,"0");
-
-            const nombreLimpio =
-                (nombre || "ANONIMO")
-                    .trim()
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]/g, "_");
-
-            const mesaLimpia = mesa || "00";
-
-            const nombreArchivo =
-                `MESA-${mesaLimpia}_` +
-                `${nombreLimpio}_` +
-                `${fecha}_${hora}_` +
-                `${Date.now()}_` +
-                `${Math.floor(Math.random()*100000)}`;
-
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("public_id", nombreArchivo);
-            formData.append("upload_preset", uploadPreset);
-
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-                { method: "POST", body: formData }
-            );
-
-            if(!response.ok){
-                const error = await response.json();
+            catch(error){
                 console.error(error);
-                throw new Error("Error al subir la foto");
+                if(intento < 2){
+                    await esperar(1000);
+                }
             }
-
-            actualizarProgreso(subidas, total);
         }
 
+        if(resultado === "subida" || resultado === "omitida"){
+            exitosas++;
+        } else {
+            fallidas++;
+        }
+
+        actualizarProgreso(procesadas, total);
+    }
+
+    if(fallidas === 0){
+
+        status.classList.remove("error");
         status.innerHTML = `
             <div class="mensaje-exito">
                 <span class="check">❤️</span>
                 Gracias por compartir este momento con nosotros.<br>
                 Tus fotos ya fueron recibidas.
+            </div>
+            <div class="nota-demora">
+                La galería puede tardar un rato en mostrarlas — no hace falta que las subas de nuevo si todavía no las ves ahí.
             </div>
         `;
 
@@ -665,22 +758,26 @@ async function subirFotos(){
         archivosSeleccionados = [];
         renderizarPreview();
 
-        setTimeout(() => {
-            barraProgreso.style.display = "none";
-            relleno.style.width = "0%";
-        }, 800);
+    } else if(exitosas > 0){
 
-    }
-    catch(error){
-
-        console.error(error);
         status.classList.add("error");
-        status.innerHTML = "❌ Ocurrió un error al subir las fotos. Probá de nuevo.";
-    }
-    finally{
-        btnSubir.disabled = false;
+        status.innerHTML =
+            `⚠️ Se subieron ${exitosas} de ${total} fotos. ` +
+            `${fallidas} no se pudieron subir — revisá tu conexión y volvé a intentar solo con esas.`;
+
+    } else {
+
+        status.classList.add("error");
+        status.innerHTML =
+            "❌ No se pudo subir ninguna foto. Revisá tu conexión y volvé a intentar.";
     }
 
+    setTimeout(() => {
+        barraProgreso.style.display = "none";
+        relleno.style.width = "0%";
+    }, 800);
+
+    btnSubir.disabled = false;
 }
 
 </script>
