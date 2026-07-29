@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Neri y Guille — Distribución de mesas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Parisienne&display=swap');
+
+:root{
+  --cream:#faf6ef;
+  --paper:#fffdfa;
+  --ink:#3b3a33;
+  --sage:#6b7a5e;
+  --sage-dark:#4a5940;
+  --sage-pale:#eef1e7;
+  --gold:#b6905a;
+  --gold-pale:#e9dcc4;
+  --line:#e3ddcf;
+  --radius:14px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'EB Garamond', serif;
+  font-size:17px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{
+  max-width:1180px;
+  margin:0 auto;
+  padding:56px 40px 90px;
+  position:relative;
+}
+
+/* corner leaves */
+.leaf{position:absolute; width:150px; height:150px; opacity:.9; z-index:0; pointer-events:none;}
+.leaf.tl{top:10px; left:0; transform:scaleX(1);}
+.leaf.tr{top:10px; right:0; transform:scaleX(-1);}
+.leaf.bl{bottom:10px; left:0; transform:scaleX(1) scaleY(-1);}
+.leaf.br{bottom:10px; right:0; transform:scaleX(-1) scaleY(-1);}
+
+header.hero{
+  text-align:center;
+  position:relative;
+  z-index:1;
+  margin-bottom:20px;
+}
+.rings{width:52px; height:52px; margin:0 auto 6px;}
+.hero h1{
+  font-family:'Parisienne', cursive;
+  font-weight:400;
+  font-size:64px;
+  color:var(--sage-dark);
+  margin:0 0 6px;
+  letter-spacing:.5px;
+}
+.hero p.sub{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  color:var(--gold);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-size:14px;
+  margin:0 0 28px;
+}
+
+.divider{
+  width:120px; height:1px; background:var(--line); margin:0 auto 34px; position:relative;
+}
+.divider::before{
+  content:"❧"; position:absolute; left:50%; top:50%; transform:translate(-50%,-52%);
+  background:var(--cream); padding:0 12px; color:var(--sage); font-size:16px;
+}
+
+nav.tabs{
+  display:flex; justify-content:center; gap:10px; margin-bottom:44px; position:relative; z-index:1;
+}
+nav.tabs button{
+  font-family:'Cormorant Garamond', serif;
+  font-size:17px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  background:transparent;
+  border:1px solid var(--sage);
+  color:var(--sage-dark);
+  padding:10px 26px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all .25s ease;
+}
+nav.tabs button.active{
+  background:var(--sage-dark);
+  color:var(--paper);
+  border-color:var(--sage-dark);
+}
+nav.tabs button:not(.active):hover{
+  background:var(--sage-pale);
+}
+
+section{position:relative; z-index:1;}
+section.hidden{display:none;}
+
+/* ---- MESAS VIEW ---- */
+.tables-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:26px;
+}
+@media (max-width: 860px){
+  .tables-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width: 560px){
+  .tables-grid{grid-template-columns:1fr;}
+}
+
+.table-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px 22px 20px;
+  box-shadow:0 2px 14px rgba(90,84,58,.05);
+}
+.table-card .num{
+  width:40px; height:40px;
+  border-radius:50%;
+  border:1.5px solid var(--gold);
+  color:var(--gold);
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  font-size:19px;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 8px;
+}
+.table-card h2{
+  font-family:'Cormorant Garamond', serif;
+  font-weight:500;
+  font-size:23px;
+  text-align:center;
+  color:var(--sage-dark);
+  margin:0 0 4px;
+}
+.table-card .count{
+  text-align:center;
+  font-size:12.5px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:14px;
+}
+.table-card ul{
+  list-style:none; margin:0; padding:0;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+.table-card li{
+  font-size:15.5px;
+  padding:3px 0;
+  color:var(--ink);
+  display:flex;
+  gap:6px;
+}
+.table-card li .ap{ font-weight:600; color:var(--sage-dark); }
+
+/* ---- LISTA VIEW ---- */
+.list-controls{
+  max-width:420px; margin:0 auto 34px;
+  position:relative;
+}
+.list-controls input{
+  width:100%;
+  font-family:'EB Garamond', serif;
+  font-size:17px;
+  padding:12px 18px;
+  border-radius:999px;
+  border:1px solid var(--sage);
+  background:var(--paper);
+  color:var(--ink);
+  outline:none;
+}
+.list-controls input:focus{border-color:var(--gold);}
+.list-controls .hint{
+  text-align:center; font-size:12.5px; color:#9a927c; margin-top:8px; letter-spacing:.5px;
+}
+
+.guest-count{
+  text-align:center; font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--sage);
+  margin-bottom:24px; font-size:16px;
+}
+
+.alpha-columns{
+  columns:3 280px;
+  column-gap:40px;
+}
+@media (max-width:700px){ .alpha-columns{columns:1;} }
+
+.letter-block{
+  break-inside:avoid;
+  margin-bottom:22px;
+}
+.letter-block h3{
+  font-family:'Cormorant Garamond', serif;
+  color:var(--gold);
+  font-size:20px;
+  border-bottom:1px solid var(--gold-pale);
+  padding-bottom:4px;
+  margin:0 0 8px;
+  letter-spacing:1px;
+}
+.guest-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:10px;
+  padding:4px 0;
+  font-size:15.5px;
+  border-bottom:1px dotted var(--line);
+}
+.guest-row .name{color:var(--ink);}
+.guest-row .name b{color:var(--sage-dark);}
+.guest-row .mesa{
+  flex:none;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;
+  color:var(--gold);
+  font-size:14px;
+  white-space:nowrap;
+}
+.guest-row.no-match{display:none;}
+.letter-block.empty{display:none;}
+
+footer{
+  text-align:center;
+  margin-top:70px;
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  color:#a79f8a;
+  font-size:14px;
+  position:relative; z-index:1;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <svg class="leaf tl" viewBox="0 0 150 150"><g fill="none" stroke="#6b7a5e" stroke-width="1.4" opacity=".55"><path d="M10 10 C 40 30, 60 55, 70 90"/><path d="M10 10 C 15 40, 10 75, 30 110"/><ellipse cx="35" cy="35" rx="16" ry="9" transform="rotate(35 35 35)" fill="#8fa17f" opacity=".5"/><ellipse cx="50" cy="60" rx="18" ry="10" transform="rotate(40 50 60)" fill="#7c9169" opacity=".5"/><ellipse cx="62" cy="88" rx="15" ry="8" transform="rotate(45 62 88)" fill="#93a682" opacity=".45"/><ellipse cx="20" cy="55" rx="13" ry="7" transform="rotate(80 20 55)" fill="#7c9169" opacity=".4"/><ellipse cx="25" cy="85" rx="13" ry="7" transform="rotate(75 25 85)" fill="#8fa17f" opacity=".4"/></g></svg>
+
+  <svg class="leaf tr" viewBox="0 0 150 150"><g fill="none" stroke="#6b7a5e" stroke-width="1.4" opacity=".55"><path d="M10 10 C 40 30, 60 55, 70 90"/><path d="M10 10 C 15 40, 10 75, 30 110"/><ellipse cx="35" cy="35" rx="16" ry="9" transform="rotate(35 35 35)" fill="#8fa17f" opacity=".5"/><ellipse cx="50" cy="60" rx="18" ry="10" transform="rotate(40 50 60)" fill="#7c9169" opacity=".5"/><ellipse cx="62" cy="88" rx="15" ry="8" transform="rotate(45 62 88)" fill="#93a682" opacity=".45"/><ellipse cx="20" cy="55" rx="13" ry="7" transform="rotate(80 20 55)" fill="#7c9169" opacity=".4"/><ellipse cx="25" cy="85" rx="13" ry="7" transform="rotate(75 25 85)" fill="#8fa17f" opacity=".4"/></g></svg>
+
+  <svg class="leaf bl" viewBox="0 0 150 150"><g fill="none" stroke="#6b7a5e" stroke-width="1.4" opacity=".55"><path d="M10 10 C 40 30, 60 55, 70 90"/><path d="M10 10 C 15 40, 10 75, 30 110"/><ellipse cx="35" cy="35" rx="16" ry="9" transform="rotate(35 35 35)" fill="#8fa17f" opacity=".5"/><ellipse cx="50" cy="60" rx="18" ry="10" transform="rotate(40 50 60)" fill="#7c9169" opacity=".5"/><ellipse cx="62" cy="88" rx="15" ry="8" transform="rotate(45 62 88)" fill="#93a682" opacity=".45"/><ellipse cx="20" cy="55" rx="13" ry="7" transform="rotate(80 20 55)" fill="#7c9169" opacity=".4"/><ellipse cx="25" cy="85" rx="13" ry="7" transform="rotate(75 25 85)" fill="#8fa17f" opacity=".4"/></g></svg>
+
+  <svg class="leaf br" viewBox="0 0 150 150"><g fill="none" stroke="#6b7a5e" stroke-width="1.4" opacity=".55"><path d="M10 10 C 40 30, 60 55, 70 90"/><path d="M10 10 C 15 40, 10 75, 30 110"/><ellipse cx="35" cy="35" rx="16" ry="9" transform="rotate(35 35 35)" fill="#8fa17f" opacity=".5"/><ellipse cx="50" cy="60" rx="18" ry="10" transform="rotate(40 50 60)" fill="#7c9169" opacity=".5"/><ellipse cx="62" cy="88" rx="15" ry="8" transform="rotate(45 62 88)" fill="#93a682" opacity=".45"/><ellipse cx="20" cy="55" rx="13" ry="7" transform="rotate(80 20 55)" fill="#7c9169" opacity=".4"/><ellipse cx="25" cy="85" rx="13" ry="7" transform="rotate(75 25 85)" fill="#8fa17f" opacity=".4"/></g></svg>
+
+  <header class="hero">
+    <svg class="rings" viewBox="0 0 60 60"><circle cx="24" cy="32" r="13" fill="none" stroke="#b6905a" stroke-width="3.2"/><circle cx="38" cy="32" r="13" fill="none" stroke="#b6905a" stroke-width="3.2"/></svg>
+    <h1>Neri y Guille</h1>
+    <p class="sub">Distribución de mesas</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <nav class="tabs">
+    <button class="active" id="btn-mesas" onclick="showView('mesas')">Mesas</button>
+    <button id="btn-lista" onclick="showView('lista')">Lista alfabética</button>
+  </nav>
+
+  <section id="view-mesas"></section>
+
+  <section id="view-lista" class="hidden">
+    <div class="list-controls">
+      <input type="text" id="search" placeholder="Buscar invitado por apellido o nombre…" oninput="filterGuests()">
+      <div class="hint">112 invitados en 13 mesas</div>
+    </div>
+    <div class="guest-count" id="guest-count"></div>
+    <div class="alpha-columns" id="alpha-columns"></div>
+  </section>
+
+  <footer>Neri &amp; Guille — con cariño</footer>
+</div>
+
+<script>
+const tables = {
+  "1": ["ABDALA, Juan Carlos","CABRERA, Victoria","CAMPOS, Rubén","IBAÑEZ, Paola","MAIDANA, Natalia","NÓBILE, Elba","PREZ, Alicia","RUIZ DIAZ, Raquel","SCHNEIDER, Rubén"],
+  "2": ["GALLINGER, Maria Eva","MARCON, Susana","MERLO, Andrea","SPONTON, Cristian","SPONTON, Jorge","SPONTON, Maira","SPONTON, Miriam"],
+  "3": ["ABDALA, Leila","ABDALA, Marcos","ABDALA, Samuel","AQUINO, Cesar","DIAZ ABDALA, Valentino","MUCHUT, Antonela","MUCHUT, Nadina","TREVISAN, Sofia"],
+  "4": ["ABDALA, Antonia","EICHENBERGER, Carlos","PEREZ, Sandra","PREZ, Juan Carlos","PREZ, Nelci","SPONTON, Beatriz","SPONTON, Edith","ZUPEL, Marina"],
+  "5": ["BANDEO, Brian","FOSCHIATTI, Antonela","FOSCHIATTI, Valeria","GONZALEZ HERRERA, Daniela","GONZALEZ HERRERA, David","GONZALEZ HERRERA, Romina","IBARRA, Gerardo","VICENTIN, Ignacio"],
+  "6": ["DOLZANI, M. Angelica","MARCON, Gabriel","MARCON, Héctor","MARCON, Ismael","MARCON, Olga","PETROLI, Gloria","ROMERO, Ramón","WANDERKAUVEN, Elida"],
+  "7": ["GASPARUTTI, Daniel","GOY, Milton","MARCON, Juan Manuel","MARCON, Juan Pablo","MUCHUT, Camila","PIVIDORI, Melanie","PLANISICH, Yamila","ROMERO, Pamela","ZORZON, Joana","ZORZON, Pablo"],
+  "8": ["ARDIT, Nicolas","ARZAMENDIA, Sebastian","BURGOS, Erica","CESCHI, Gaston","CIAN, Danisa","DELBON, Marcos","FLORES, Diego","PLANISICH, Tamara","VELAZQUEZ, Paula"],
+  "9": ["ARAMBURU, Liliana","AVALOS, Roxana","FERNANDEZ DA SILVA, Maricel","PERELLO, Marisol","PIEDRABUENA, Melina","RODGERS, Gerardo","SALINAS, Dianela","SANTILLAN, Juan"],
+  "10": ["ARMANDO, Marisel","CIAN, Pablo","DUARTE, Mirta","MAREGA, Mauro","ORDAZZO, Gustavo","PLANISICH, Fabian","RAMUA, Sandra","VILLASBOAS, Nancy"],
+  "11": ["BRACH, M. Inés","CANTERO, Veronica","DELLA ROSA, Ignacio","GALLO, Adriana","GANCHIER, Noelia","JOERIN, Elizabeth","LORENZON, Fiama","LOVISA, Horacio","MOSCHEN, Daniel","STECHINA, Leandro"],
+  "12": ["ARAMBURÚ, Santiago","CIAN, Aldana","FONTANA, Ronaldo","IGLESIAS, Fernando","JARA, Juan Lucas","MINOTTI, Juan Diego","PLOTINO, Erica","RUIZ DIAZ, Santiago","VEGA, Cecilia"],
+  "13": ["ALEGRE, Emannuel","CABALLERO, Lucas","CUARANTA, Leonela","ESCOBAR, Damian","FRANCO, Hernán","GALLO, Sergio","PIVIDORI, M. Cecilia","SARMIENTO, Rocio","SAUCEDO, Rodrigo","VOGEL, M. Victoria"]
+};
+
+// ---- render mesas ----
+const mesasView = document.getElementById('view-mesas');
+const grid = document.createElement('div');
+grid.className = 'tables-grid';
+Object.keys(tables).sort((a,b)=>parseInt(a)-parseInt(b)).forEach(num=>{
+  const guests = tables[num];
+  const card = document.createElement('div');
+  card.className = 'table-card';
+  const ul = guests.map(g=>{
+    const [ap, nom] = g.split(', ');
+    return `<li><span class="ap">${ap},</span> ${nom}</li>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="num">${num}</div>
+    <h2>Mesa ${num}</h2>
+    <div class="count">${guests.length} invitados</div>
+    <ul>${ul}</ul>
+  `;
+  grid.appendChild(card);
+});
+mesasView.appendChild(grid);
+
+// ---- build alphabetical list ----
+let allGuests = [];
+Object.keys(tables).forEach(num=>{
+  tables[num].forEach(g=>{
+    const [ap, nom] = g.split(', ');
+    allGuests.push({ap, nom, mesa:num, full:g});
+  });
+});
+allGuests.sort((a,b)=> a.full.localeCompare(b.full,'es'));
+
+document.getElementById('guest-count').textContent = allGuests.length + ' invitados en total';
+
+const alphaCol = document.getElementById('alpha-columns');
+let currentLetter = '';
+let letterBlock = null;
+allGuests.forEach(g=>{
+  const letter = g.ap.charAt(0).toUpperCase();
+  if(letter !== currentLetter){
+    currentLetter = letter;
+    letterBlock = document.createElement('div');
+    letterBlock.className = 'letter-block';
+    letterBlock.dataset.letter = letter;
+    letterBlock.innerHTML = `<h3>${letter}</h3>`;
+    alphaCol.appendChild(letterBlock);
+  }
+  const row = document.createElement('div');
+  row.className = 'guest-row';
+  row.dataset.search = (g.ap + ' ' + g.nom).toLowerCase();
+  row.innerHTML = `<span class="name"><b>${g.ap}</b>, ${g.nom}</span><span class="mesa">Mesa ${g.mesa}</span>`;
+  letterBlock.appendChild(row);
+});
+
+function filterGuests(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  document.querySelectorAll('.guest-row').forEach(row=>{
+    const match = row.dataset.search.includes(q);
+    row.classList.toggle('no-match', !match);
+  });
+  document.querySelectorAll('.letter-block').forEach(block=>{
+    const visible = block.querySelectorAll('.guest-row:not(.no-match)').length;
+    block.classList.toggle('empty', visible === 0);
+  });
+}
+
+function showView(view){
+  document.getElementById('view-mesas').classList.toggle('hidden', view !== 'mesas');
+  document.getElementById('view-lista').classList.toggle('hidden', view !== 'lista');
+  document.getElementById('btn-mesas').classList.toggle('active', view === 'mesas');
+  document.getElementById('btn-lista').classList.toggle('active', view === 'lista');
+}
+</script>
+</body>
+</html>
